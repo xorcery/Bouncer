@@ -18,5 +18,9 @@ Bouncer is a simple .NET HttpModule that leverages an IP based ACL to allow admi
     
     /* configure file extensions to ignore; good for having images/css on your offline.html */
     <add key="bouncer:excludedExtensions" value="jpg,png,gif,css,js"/>
+    
+### Create an offline static html document ###
+
+To configure what the non-admin visitors will see, create a file in your website root named `offline.html`.  Fill it will all the goodness you want.
 
 Simply rename the `~/offline.html` manually/programmatically to bring the site back online
