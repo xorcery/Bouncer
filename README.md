@@ -7,6 +7,11 @@ Bouncer is a simple .NET HttpModule that leverages an IP based ACL to allow admi
 
 #### Modify your web.config ####
 
+    /* Register the module */
+    <modules>
+      <add name="BouncerModule" type="Bouncer.BouncerModule, Bouncer" />
+    </modules>
+
     /* point to your static file */
     <add key="bouncer:offlineFilePath" value="~/offline.html"/>
     
