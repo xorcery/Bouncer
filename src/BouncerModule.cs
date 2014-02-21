@@ -14,6 +14,7 @@ namespace Bouncer
         private static string offlineFilePath = System.Web.Configuration.WebConfigurationManager.AppSettings["bouncer:offlineFilePath"];
         private static string ipAcl = System.Web.Configuration.WebConfigurationManager.AppSettings["bouncer:ipAcl"];
         private static string ignoreBannerPaths = System.Web.Configuration.WebConfigurationManager.AppSettings["bouncer:ignoreBannerPaths"];
+        private static string excludedExtensions = System.Web.Configuration.WebConfigurationManager.AppSettings["bouncer:excludedExtensions"];
 
         private const string defaultOfflineBanner = @"
                 <script>
@@ -31,7 +32,7 @@ namespace Bouncer
 
         public void Init(HttpApplication context)
         {
-            context.BeginRequest += new EventHandler(Start);
+            context.ResolveRequestCache += new EventHandler(Start);
             context.PreSendRequestContent += new EventHandler(Finish);
         }
 
@@ -39,17 +40,31 @@ namespace Bouncer
         {
             var application = (HttpApplication)sender;
             var context = application.Context;
+            var path = context.Request.Url.AbsolutePath;
+            var extension = (path.Contains('.')) ? Path.GetExtension(path).Substring(1) : Path.GetExtension(path);
 
-            //test for file presense which means the site is offline
-            if (File.Exists(context.Server.MapPath(offlineFilePath)))
+            /*
+             * Checking for excluded file extensions b/c it appears something is interfering with the mime/types
+             * 
+             * This allows the offline.html to have images/css/js come thru
+             */
+
+            if (!String.IsNullOrEmpty(extension) && !String.IsNullOrEmpty(excludedExtensions) && excludedExtensions.Split(',').Contains(extension))
+                return;
+
+            if (context.Response.ContentType == bannerMimeType)
             {
-                var userIp = Utility.GetUserIp(application);
-
-                //whitelist check
-                if (!Utility.IsUserIpWhiteListed(userIp, ipAcl))
+                //test for file presense which means the site is offline
+                if (File.Exists(context.Server.MapPath(offlineFilePath)))
                 {
-                    //non-admin
-                    context.RewritePath(offlineFilePath);
+                    var userIp = Utility.GetUserIp(application);
+
+                    //whitelist check
+                    if (!Utility.IsUserIpWhiteListed(userIp, ipAcl))
+                    {
+                        //non-admin
+                        context.RewritePath(offlineFilePath);
+                    }
                 }
             }
         }
@@ -58,6 +73,9 @@ namespace Bouncer
         {
             var application = (HttpApplication)sender;
             var context = application.Context;
+
+            if (context.Response.ContentType != bannerMimeType)
+                return;
 
             if (File.Exists(context.Server.MapPath(offlineFilePath)))
             {
@@ -69,7 +87,7 @@ namespace Bouncer
                     var excludedBannerPaths = ignoreBannerPaths.ToLower().Split(',');
 
                     //test for html/text and add message if not excluded
-                    if (context.Response.ContentType == bannerMimeType && !excludedBannerPaths.Any(x => context.Request.Path.ToLower().StartsWith(x)))
+                    if (!excludedBannerPaths.Any(x => context.Request.Path.ToLower().StartsWith(x)))
                     {
                         var sb = new StringBuilder();
                         sb.AppendLine(defaultOfflineBanner);
