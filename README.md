@@ -3,9 +3,9 @@ Bouncer
 
 Bouncer is a simple .NET HttpModule that leverages for an IP based ACL to allow admins into a site while unauthorized users will get a static page.
 
-## Config ##
+### Config ###
 
-### Modify your web config ###
+#### Modify your web.config ####
 
     /* point to your static file */
     <add key="bouncer:offlineFilePath" value="~/offline.html"/>
@@ -14,4 +14,4 @@ Bouncer is a simple .NET HttpModule that leverages for an IP based ACL to allow 
     /* Exclude some directories from having the notification banner show */
     <add key="bouncer:ignoreBannerPaths" value="/umbraco,/App_Plugins"/>
 
-Simply rename the ~/offline.html manually/programmatically to bring the site back online
+Simply rename the `~/offline.html` manually/programmatically to bring the site back online
