@@ -15,6 +15,7 @@ namespace Bouncer
         private static string ipAcl = System.Web.Configuration.WebConfigurationManager.AppSettings["bouncer:ipAcl"];
         private static string ignoreBannerPaths = System.Web.Configuration.WebConfigurationManager.AppSettings["bouncer:ignoreBannerPaths"];
         private static string excludedExtensions = System.Web.Configuration.WebConfigurationManager.AppSettings["bouncer:excludedExtensions"];
+        private static bool impersonateNonAdmin = System.Web.Configuration.WebConfigurationManager.AppSettings["bouncer:impersonateNonAdmin"] != null ? Convert.ToBoolean(System.Web.Configuration.WebConfigurationManager.AppSettings["bouncer:impersonateNonAdmin"]) : false;
 
         private const string defaultOfflineBanner = @"
                 <script>
@@ -60,7 +61,7 @@ namespace Bouncer
                     var userIp = Utility.GetUserIp(application);
 
                     //whitelist check
-                    if (!Utility.IsUserIpWhiteListed(userIp, ipAcl))
+                    if (!Utility.IsUserIpWhiteListed(userIp, ipAcl) || impersonateNonAdmin)
                     {
                         //non-admin
                         context.RewritePath(offlineFilePath);
@@ -82,7 +83,7 @@ namespace Bouncer
                 var userIp = Utility.GetUserIp(application);
 
                 //whitelist check
-                if (Utility.IsUserIpWhiteListed(userIp, ipAcl))
+                if (Utility.IsUserIpWhiteListed(userIp, ipAcl) && !impersonateNonAdmin)
                 {
                     var excludedBannerPaths = ignoreBannerPaths.ToLower().Split(',');
 
