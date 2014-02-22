@@ -3,7 +3,7 @@ Bouncer
 
 Bouncer is a simple .NET HttpModule that leverages an IP based ACL to allow admins into a site while unauthorized users will get a static page.
 
-<iframe width="640" height="390" src="//www.youtube.com/embed/GbWprPBOf_8" frameborder="0" allowfullscreen></iframe>
+[Video Demo](http://www.youtube.com/watch?v=GbWprPBOf_8&feature=youtu.be&hd=1)
 
 ### Config ###
 
