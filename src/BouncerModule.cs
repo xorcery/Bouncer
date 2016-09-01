@@ -42,7 +42,7 @@ namespace Bouncer
             var application = (HttpApplication)sender;
             var context = application.Context;
             var path = context.Request.Url.AbsolutePath;
-            var extension = (path.Contains('.')) ? Path.GetExtension(path).Substring(1) : Path.GetExtension(path);
+            var extension = (path.Contains('.') && !string.IsNullOrWhiteSpace(Path.GetExtension(path)) ? Path.GetExtension(path).Substring(1) : Path.GetExtension(path);
 
             /*
              * Checking for excluded file extensions b/c it appears something is interfering with the mime/types
